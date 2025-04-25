@@ -57,11 +57,10 @@ def get_projections(args, backbone, loader):
 def train(args, train_loader, model, optimizer, save_path):
     """
     Args:
-        loaders (dict of torch.utils.data.DataLoader): Training/test data of (embedding, label) pairs\
-        posthoc_layer (models.BaseLinear, models.PosthocLinearCBM, or models.PosthocHybridCBM): layer following the backbone
+        train_loader (torch.utils.data.DataLoader): Training data of (embedding, label) pairs
+        model (models.BaseLinear, models.PosthocLinearCBM, or models.PosthocHybridCBM): layer following the backbone
         optimizer (torch.optim.Optimizer): Optimizer
         num_classes (int): Number of classes in the dataset
-        type (str): Type of training. Can be "baseline", "posthoc" or "hybrid"
     """
 
     for epoch in tqdm(range(1, args.num_epochs + 1)):
@@ -102,8 +101,6 @@ def eval(args, test_loader, model):
     cm = confusion_matrix(all_labels, all_preds.argmax(1))
     diagonal = cm.diagonal()
     per_class_acc = diagonal / np.sum(cm, axis=1)
-
-    print(all_preds[:10])
 
     return per_class_acc.mean(), per_class_acc.min(), all_projs
 

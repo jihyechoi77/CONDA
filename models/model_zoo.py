@@ -72,7 +72,6 @@ def get_model(args, backbone_name="resnet18_cub", full_model=False):
 
 
     elif backbone_name == "resnet50":
-        # for Metashift, Waterbirds datasets
         # output emb dim = 2048
 
         model = models.resnet50(weights="IMAGENET1K_V2")
@@ -89,53 +88,6 @@ def get_model(args, backbone_name="resnet18_cub", full_model=False):
             transforms.ToTensor(),
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
             ])
-
-    elif backbone_name == "densenet121":
-        # for FMoW dataset
-        model = models.densenet121(pretrained=True)
-        backbone, model_top = ResNetBottom(model), ResNetTop(model)
-        # d = model.classifier.in_features
-        # model.classifier = nn.Linear(d, n_classes)
-        print(backbone)
-
-        scale = 256.0 / 224.0
-        target_resolution = (224, 224)
-        preprocess = transforms.Compose([
-            transforms.Resize((int(target_resolution[0] * scale),
-                               int(target_resolution[1] * scale))),
-            transforms.CenterCrop(target_resolution),
-            transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-            ])
-
-    elif backbone_name == "resnet50_isic":
-        model = models.resnet50(weights="IMAGENET1K_V2")
-        backbone, model_top = ResNetBottom(model), ResNetTop(model)
-
-        target_resolution = (224, 224)
-        normalize = transforms.Normalize([0.485, 0.456, 0.406],
-                                         [0.229, 0.224, 0.225])
-        # TODO: parameterize these two
-        train = False
-        augment_data = False
-        if train and augment_data:
-            preprocess = transforms.Compose([
-                transforms.RandomHorizontalFlip(),
-                transforms.RandomVerticalFlip(),
-                transforms.RandomResizedCrop(target_resolution[0], scale=(0.75, 1.0)),
-                transforms.RandomRotation(45),
-                transforms.ColorJitter(hue=0.2),
-                transforms.ToTensor(),
-                normalize
-            ])
-        else:
-            preprocess = transforms.Compose([
-                transforms.Resize(target_resolution),
-                transforms.ColorJitter(hue=0.2),
-                transforms.ToTensor(),
-                normalize
-            ])
-
 
     else:
         raise ValueError(backbone_name)

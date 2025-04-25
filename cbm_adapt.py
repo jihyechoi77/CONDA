@@ -370,14 +370,6 @@ def main(args, backbone, preprocess):
 
 
     print(f"[CBM] Over {num_experiments} trials...")
-    # print("[Source test] AUROC: {:.5f} +/- {:.5f}".format(np.mean(auroc_all),
-    #                                                       np.std(auroc_all, ddof=1) / np.sqrt(len(auroc_all))))
-    # print("[Target test] AUROC: {:.5f} +/- {:.5f}".format(np.mean(auroc_shift_all),
-    #                                                       np.std(auroc_shift_all, ddof=1) / np.sqrt(
-    #                                                           len(auroc_shift_all))))
-    # print("[Target test (adapted)] AUROC: {:.5f} +/- {:.5f}".format(np.mean(auroc_shift_adapt_all),
-    #                                                       np.std(auroc_shift_adapt_all, ddof=1) / np.sqrt(
-    #                                                           len(auroc_shift_adapt_all))))
     print("[Source test] Average Accuracy: {:.5f} +/- {:.5f}".format(np.mean(avg_all), np.std(avg_all, ddof=1)/np.sqrt(len(avg_all))))
     print("[Source test] Worst Accuracy: {:.5f} +/- {:.5f}".format(np.mean(worst_all), np.std(worst_all, ddof=1)/np.sqrt(len(worst_all))))
     print("[Target test] Average Accuracy: {:.5f} +/- {:.5f}".format(np.mean(avg_shift_all), np.std(avg_shift_all, ddof=1)/np.sqrt(len(avg_shift_all))))

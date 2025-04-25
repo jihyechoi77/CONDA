@@ -1,8 +1,5 @@
 from torchvision import datasets
 from data.cifar10c import CIFAR10CDataset, CIFAR100CDataset
-from data.imagenetc import TinyImageNetValDataset, TinyImageNetCDataset, ImageNetCDataset, get_imagenet_classnames
-# import torchvision.transforms as transforms
-from data.currupt import CorruptedDataset
 
 import torch
 import os
@@ -51,90 +48,6 @@ def get_dataset(args, dataset, preprocess=None, seed=42, shuffle_test=False):
                                                   batch_size=args.batch_size,
                                                   shuffle=False,
                                                   num_workers=args.num_workers,)
-        train_loader = idx_to_class = classes = None
-
-    elif dataset == "imagenet":
-        train_dir = './datasets/imagenet/train'
-        val_dir = './datasets/imagenet/val'
-
-        trainset = datasets.ImageFolder(root=train_dir, transform=preprocess)
-        valset = datasets.ImageFolder(root=val_dir, transform=preprocess)
-
-        # Extract classes and class-to-index mapping
-        classes = trainset.classes  # List of class names (WNIDs)
-        classes = get_imagenet_classnames(classes,
-                                          meta_file_path='./datasets/imagenet/ILSVRC2012_devkit_t12/data/meta.mat')
-        class_to_idx = trainset.class_to_idx  # Dictionary mapping WNIDs to indices
-        idx_to_class = {v: k for k, v in class_to_idx.items()}  # Reverse the mapping
-
-        # Create DataLoaders
-        train_loader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size,
-                                                   shuffle=False, num_workers=args.num_workers)
-        test_loader = torch.utils.data.DataLoader(valset, batch_size=args.batch_size,
-                                                 shuffle=False, num_workers=args.num_workers)
-
-
-    elif "imagenet-c" in dataset:
-        tags = dataset.split("-")
-        corruption_type = tags[2]  # corruption type specified in dataset name
-        severity = int(tags[-1])
-        testset = ImageNetCDataset(corruption_type=corruption_type,
-                                   severity=severity,
-                                   root_dir="./datasets/imagenet-c",  # where the dataset is stored
-                                   transform=preprocess)
-
-        test_loader = torch.utils.data.DataLoader(testset,
-                                                  batch_size=args.batch_size,
-                                                  shuffle=False, num_workers=args.num_workers)
-        train_loader = idx_to_class = classes = None
-
-
-    elif args.dataset == 'tinyimagenet':
-        # Training Set
-        train_dir = os.path.join('./datasets/tiny-imagenet-200', 'train')
-        trainset = datasets.ImageFolder(train_dir, transform=preprocess)
-
-        # Validation Set
-        val_dir = os.path.join('./datasets/tiny-imagenet-200', 'val/images')
-        val_annotations_path = os.path.join('./datasets/tiny-imagenet-200', 'val/val_annotations.txt')
-
-        # Load validation annotations
-        val_annotations = {}
-        with open(val_annotations_path, 'r') as f:
-            for line in f:
-                parts = line.strip().split('\t')
-                img_name = parts[0]
-                img_class = parts[1]
-                val_annotations[img_name] = img_class
-
-        # Create class-to-index mapping from training set
-        classes = trainset.classes
-        class_to_idx = trainset.class_to_idx
-        idx_to_class = {v: k for k, v in class_to_idx.items()}  # Reverse the mapping
-
-        # Create validation dataset
-        valset = TinyImageNetValDataset(val_dir, val_annotations, class_to_idx, transform=preprocess)
-
-        # Data Loaders
-        train_loader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size,
-                                                   shuffle=False, num_workers=args.num_workers)
-        test_loader = torch.utils.data.DataLoader(valset, batch_size=args.batch_size,
-                                                 shuffle=False, num_workers=args.num_workers)
-
-
-
-
-    elif "tinyimagenet-c" in dataset:
-        tags = dataset.split("-")
-        corruption_type = tags[2]  # corruption type specified in dataset name
-        testset = TinyImageNetCDataset(corruption_type=corruption_type,
-                                       severity=5,
-                                       root_dir="./datasets/Tiny-ImageNet-C",  # where the dataset is stored
-                                       transform=preprocess)
-
-        test_loader = torch.utils.data.DataLoader(testset,
-                                                  batch_size=args.batch_size,
-                                                  shuffle=False, num_workers=args.num_workers)
         train_loader = idx_to_class = classes = None
 
 
@@ -197,8 +110,6 @@ def get_dataset(args, dataset, preprocess=None, seed=42, shuffle_test=False):
         idx_to_class = None
 
 
-
-
     elif dataset == 'metashift':
         from .constants import METASHIFT_DATA_DIR
         trainset = datasets.ImageFolder(root=os.path.join(METASHIFT_DATA_DIR,'train'),
@@ -214,22 +125,6 @@ def get_dataset(args, dataset, preprocess=None, seed=42, shuffle_test=False):
         test_loader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size,
                                                   shuffle=False,
                                                   num_workers=args.num_workers,)
-
-    elif 'metashift-c' in dataset:
-        from .constants import METASHIFT_DATA_DIR
-
-        corruption_type = dataset.split("-")[2]
-        testset = CorruptedDataset(root=os.path.join(METASHIFT_DATA_DIR, 'test'),
-                                   transform=preprocess,
-                                   corruption_type=corruption_type, severity=6)
-        classes = testset.classes
-        class_to_idx = testset.class_to_idx
-        idx_to_class = {v: k for k, v in class_to_idx.items()}
-        train_loader = None
-        test_loader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size,
-                                                  shuffle=False,
-                                                  num_workers=args.num_workers)
-
 
     elif dataset == 'metashift_shift':
         from .constants import METASHIFT_DATA_DIR
@@ -291,7 +186,6 @@ def get_dataset(args, dataset, preprocess=None, seed=42, shuffle_test=False):
         classes = ["landbird", "waterbird"]
         class_to_idx = {c: i for (i, c) in enumerate(classes)}
         idx_to_class = {v: k for k, v in class_to_idx.items()}
-
 
 
     else:
